@@ -1,0 +1,75 @@
+name: Java tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      frontend:
+        image: node:20
+        options: --network host
+        ports:
+          - 3000:3000
+        volumes:
+          - ./application/web:/home/frontend
+          
+      backend:
+        image: node:20
+        options: --network host
+        ports:
+          - 3333:3333
+        volumes:
+          - ./application/api:/home/backend
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4.0.2
+      with:
+        node-version: '20'
+
+    - name: Install frontend dependencies
+      working-directory: ./web/frontend
+      run: npm install
+
+    - name: Start frontend server
+      working-directory: ./web/frontend
+      run: npm run dev &
+      env:
+        API_URL: ${{ secrets.FRONTEND_API_URL }}
+
+    - name: Install backend dependencies
+      working-directory: ./web/backend
+      run: npm install
+
+    - name: Start backend server
+      working-directory: ./web/backend
+      run: npm run dev &
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASS: ${{ secrets.DB_PASS }}
+
+    - name: Setup environment variables
+      run: |
+        echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+        echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+        echo "DB_PASS=${{ secrets.DB_PASS }}" >> $GITHUB_ENV
+
+    - name: Build and Run Tests
+      run: mvn clean install
+      working-directory: ./tests
+
+    - name: Run Automated Tests
+      run: mvn test
