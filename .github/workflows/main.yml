@@ -1,0 +1,49 @@
+name: Java tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4.1.7
+
+    - name: Setup Java
+      uses: actions/setup-java@v4.2.1
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4.0.2
+      with:
+        node-version: '20'
+
+    - name: Start frontend service
+      run: |
+        docker run -d --name frontend --network host -p 3000:3000 -v $PWD/application/web:/home/frontend node:20 bash -c "cd /home/frontend && npm install && npm run dev"
+      env:
+        API_URL: ${{ secrets.FRONTEND_API_URL }}
+
+    - name: Start backend service
+      run: |
+        docker run -d --name backend --network host -p 3333:3333 -v $PWD/application/api:/home/backend node:20 bash -c "cd /home/backend && npm install && npm run dev"
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASS: ${{ secrets.DB_PASS }}
+
+    - name: Setup environment variables
+      run: |
+        echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
+        echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+        echo "DB_PASS=${{ secrets.DB_PASS }}" >> $GITHUB_ENV
+
+    - name: Build and Run Tests
+      run: mvn clean install
+
+    - name: Run Automated Tests
+      run: mvn test
