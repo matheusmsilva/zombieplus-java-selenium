@@ -11,7 +11,6 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import pages.components.Popup;
 
-import java.lang.reflect.Array;
 import java.time.Duration;
 import java.util.List;
 
@@ -20,11 +19,13 @@ public class LeadsPage {
     WebDriver driver;
     Popup popup;
     Actions actions;
+    Wait<WebDriver> wait;
 
     public LeadsPage (WebDriver driver) {
         this.driver = driver;
         popup = new Popup(driver);
         actions = new Actions(driver);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         PageFactory.initElements(driver, this);
     }
 
@@ -33,10 +34,10 @@ public class LeadsPage {
     private WebElement button_PressPlay;
 
     @FindBy(name="name")
-    private WebElement textArea_Name;
+    private WebElement input_Name;
 
     @FindBy(name="email")
-    private WebElement textArea_Email;
+    private WebElement input_Email;
 
     @FindBy(xpath="//button[text()='Quero entrar na fila!']")
     private WebElement button_Submit;
@@ -56,7 +57,6 @@ public class LeadsPage {
     }
 
     public LeadsPage openLeadForm() {
-        Wait<WebDriver> wait = new WebDriverWait(this.driver, Duration.ofSeconds(3));
         wait.until(ExpectedConditions.elementToBeClickable(button_PressPlay));
         actions.moveToElement(button_PressPlay).perform();
         button_PressPlay.click();
@@ -65,15 +65,14 @@ public class LeadsPage {
     }
 
     public LeadsPage submit(String name, String  email) {
-        textArea_Name.sendKeys(name);
-        textArea_Email.sendKeys(email);
+        input_Name.sendKeys(name);
+        input_Email.sendKeys(email);
         button_Submit.click();
         return this;
     }
 
     public void alertHaveText(Object target) {
-        new WebDriverWait(this.driver, Duration.ofSeconds(3))
-                .until(ExpectedConditions.visibilityOfAllElements(text_AlertFields));
+        wait.until(ExpectedConditions.visibilityOfAllElements(text_AlertFields));
 
         if (target instanceof String) {
             Assert.assertEquals(text_AlertFields.size(), 1);

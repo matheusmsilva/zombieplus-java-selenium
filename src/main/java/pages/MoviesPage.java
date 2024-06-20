@@ -20,9 +20,11 @@ public class MoviesPage {
     WebDriver driver;
     Actions actions;
     Popup popup;
+    Wait<WebDriver> wait;
 
     public MoviesPage(WebDriver driver) {
         this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         actions = new Actions(driver);
         popup = new Popup(driver);
         PageFactory.initElements(driver, this);
@@ -55,14 +57,12 @@ public class MoviesPage {
 
     // Operations
     public void goToForm() {
-        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(d -> btn_RegisterMovie.isDisplayed());
         btn_RegisterMovie.click();
     }
 
     public void create(Movie movie) {
         this.goToForm();
-        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         wait.until(d -> input_MovieTitle.isDisplayed());
         input_MovieTitle.sendKeys(movie.getTitle());
         input_MovieOverview.sendKeys(movie.getOverview());
@@ -95,7 +95,6 @@ public class MoviesPage {
     }
 
     public void isLoggedIn(String username) {
-        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         WebElement usernameElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='logged-user']//small")));
         String actualUser = usernameElement.getText();
         Assert.assertEquals(actualUser, "Olá, " + username);
