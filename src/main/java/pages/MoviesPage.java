@@ -67,15 +67,19 @@ public class MoviesPage {
         input_MovieTitle.sendKeys(movie.getTitle());
         input_MovieOverview.sendKeys(movie.getOverview());
 
+        wait.until(ExpectedConditions.elementToBeClickable(select_MovieProvider));
         select_MovieProvider.click();
         WebElement providerOption = driver.findElement(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + movie.getCompany() + "']"));
         providerOption.click();
 
+        wait.until(ExpectedConditions.elementToBeClickable(select_MovieYear));
         select_MovieYear.click();
         WebElement yearOption = driver.findElement(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + movie.getReleaseYear() + "']"));
         yearOption.click();
 
-        input_Cover.sendKeys("E:/automation/automacao-java/zombieplus/src/test/resources/fixtures" + movie.getCover());
+        String currentDir = System.getProperty("user.dir");
+        String imagePath = currentDir + "/src/test/resources/fixtures" + movie.getCover();
+        input_Cover.sendKeys(imagePath);
 
         if (movie.isFeatured()) {
             switch_Featured.click();
