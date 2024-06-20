@@ -2,6 +2,7 @@ package pages;
 
 import models.Movie;
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -25,7 +26,7 @@ public class MoviesPage {
 
     public MoviesPage(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(7));
         actions = new Actions(driver);
         popup = new Popup(driver);
         PageFactory.initElements(driver, this);
@@ -85,13 +86,11 @@ public class MoviesPage {
 
         wait.until(ExpectedConditions.elementToBeClickable(select_MovieProvider));
         select_MovieProvider.click();
-        WebElement providerOption = driver.findElement(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + movie.getCompany() + "']"));
-        providerOption.click();
+        selectOptionByText(movie.getCompany());
 
         wait.until(ExpectedConditions.elementToBeClickable(select_MovieYear));
         select_MovieYear.click();
-        WebElement yearOption = driver.findElement(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + movie.getReleaseYear() + "']"));
-        yearOption.click();
+        selectOptionByText(String.valueOf(movie.getReleaseYear()));
 
         String currentDir = System.getProperty("user.dir");
         String imagePath = currentDir + "/src/test/resources/fixtures" + movie.getCover();
@@ -154,6 +153,17 @@ public class MoviesPage {
             }
         } else {
             throw new IllegalArgumentException("Unsupported type for alert text: " + target.getClass().getName());
+        }
+    }
+
+    public void selectOptionByText(String text) {
+        try {
+            WebElement option = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + text + "']")));
+            option.click();
+        } catch (StaleElementReferenceException e) {
+            // Retry locating the option and clicking
+            WebElement option = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + text + "']")));
+            option.click();
         }
     }
 
