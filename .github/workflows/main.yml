@@ -31,13 +31,6 @@ jobs:
     - name: Start backend service
       run: |
         docker run -d --name backend --network host -p 3333:3333 -v $PWD/application/api:/home/backend node:20 bash -c "cd /home/backend && npm install && npm run dev"
-      env:
-        DB_DIALECT: ${{ secrets.DB_DIALECT }}
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASS: ${{ secrets.DB_PASS }}
-        DB_PORT: ${{ secrets.DB_PORT }}
 
     - name: Setup environment variables
       run: |
