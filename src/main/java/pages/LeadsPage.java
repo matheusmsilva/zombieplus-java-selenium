@@ -24,6 +24,7 @@ public class LeadsPage {
     public LeadsPage (WebDriver driver) {
         this.driver = driver;
         popup = new Popup(driver);
+        actions = new Actions(driver);
         PageFactory.initElements(driver, this);
     }
 
