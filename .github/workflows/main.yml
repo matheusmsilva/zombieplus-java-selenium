@@ -44,7 +44,6 @@ jobs:
 
     - name: Build and Run Tests
       run: mvn clean install
-      working-directory: ./tests
 
     - name: Run Automated Tests
       run: mvn test
