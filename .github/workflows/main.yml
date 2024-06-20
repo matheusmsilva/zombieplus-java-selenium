@@ -32,12 +32,6 @@ jobs:
       run: |
         docker run -d --name backend --network host -p 3333:3333 -v $PWD/application/api:/home/backend node:20 bash -c "cd /home/backend && npm install && npm run dev"
 
-    - name: Setup environment variables
-      run: |
-        echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-        echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-        echo "DB_PASS=${{ secrets.DB_PASS }}" >> $GITHUB_ENV
-
     - name: Install Chrome
       run: |
         sudo apt-get update
