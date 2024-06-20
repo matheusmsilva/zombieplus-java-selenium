@@ -10,7 +10,6 @@ jobs:
     services:
       frontend:
         image: node:20
-        options: --network host
         ports:
           - 3000:3000
         volumes:
@@ -18,7 +17,6 @@ jobs:
           
       backend:
         image: node:20
-        options: --network host
         ports:
           - 3333:3333
         volumes:
@@ -40,21 +38,21 @@ jobs:
         node-version: '20'
 
     - name: Install frontend dependencies
-      working-directory: ./web/frontend
+      working-directory: ./application/web
       run: npm install
 
     - name: Start frontend server
-      working-directory: ./web/frontend
+      working-directory: ./application/web
       run: npm run dev &
       env:
         API_URL: ${{ secrets.FRONTEND_API_URL }}
 
     - name: Install backend dependencies
-      working-directory: ./web/backend
+      working-directory: ./application/api
       run: npm install
 
     - name: Start backend server
-      working-directory: ./web/backend
+      working-directory: ./application/api
       run: npm run dev &
       env:
         DB_HOST: ${{ secrets.DB_HOST }}
