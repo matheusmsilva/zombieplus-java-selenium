@@ -1,5 +1,6 @@
 package pages;
 
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -18,6 +19,7 @@ public class LeadsPage {
 
     WebDriver driver;
     Popup popup;
+    Actions actions;
 
     public LeadsPage (WebDriver driver) {
         this.driver = driver;
@@ -53,8 +55,10 @@ public class LeadsPage {
     }
 
     public LeadsPage openLeadForm() {
-        button_PressPlay.click();
         Wait<WebDriver> wait = new WebDriverWait(this.driver, Duration.ofSeconds(3));
+        wait.until(ExpectedConditions.elementToBeClickable(button_PressPlay));
+        actions.moveToElement(button_PressPlay).perform();
+        button_PressPlay.click();
         wait.until(d -> text_HeaderModal.isDisplayed());
         return this;
     }
