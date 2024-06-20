@@ -1,10 +1,7 @@
 package e2e;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import models.Movie;
 import models.MovieData;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -14,9 +11,8 @@ import pages.MoviesPage;
 import utils.DatabaseUtils;
 import utils.JsonUtils;
 
-public class MoviesTest {
+public class MoviesTest extends BaseTest {
 
-    WebDriver driver;
     MoviesPage moviesPage;
     MovieData movieData;
 
@@ -26,11 +22,8 @@ public class MoviesTest {
     }
 
     @BeforeMethod
-    public void setup() {
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-
+    public void setupTest() {
+        setupBrowser();
         // Initialize movieData
         movieData = JsonUtils.readMovieData();
         if (movieData == null) {

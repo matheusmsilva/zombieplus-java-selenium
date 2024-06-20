@@ -4,6 +4,7 @@ import models.Movie;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,10 +18,12 @@ import java.time.Duration;
 public class MoviesPage {
 
     WebDriver driver;
+    Actions actions;
     Popup popup;
 
     public MoviesPage(WebDriver driver) {
         this.driver = driver;
+        actions = new Actions(driver);
         popup = new Popup(driver);
         PageFactory.initElements(driver, this);
     }
@@ -29,7 +32,7 @@ public class MoviesPage {
     @FindBy(css = "a[href$='register']")
     private WebElement btn_RegisterMovie;
 
-    @FindBy(xpath = "//button[text()='Cadastrar']")
+    @FindBy(xpath = "//button[@type='button'][text()='Cadastrar']")
     private WebElement btn_Submit;
 
     @FindBy(name = "title")
@@ -52,11 +55,15 @@ public class MoviesPage {
 
     // Operations
     public void goToForm() {
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(d -> btn_RegisterMovie.isDisplayed());
         btn_RegisterMovie.click();
     }
 
     public void create(Movie movie) {
         this.goToForm();
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(d -> input_MovieTitle.isDisplayed());
         input_MovieTitle.sendKeys(movie.getTitle());
         input_MovieOverview.sendKeys(movie.getOverview());
 
@@ -74,6 +81,8 @@ public class MoviesPage {
             switch_Featured.click();
         }
 
+        wait.until(ExpectedConditions.elementToBeClickable(btn_Submit));
+        actions.moveToElement(btn_Submit).perform();
         btn_Submit.click();
     }
 

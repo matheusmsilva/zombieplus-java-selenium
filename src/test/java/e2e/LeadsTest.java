@@ -4,9 +4,6 @@ import org.testng.annotations.*;
 import utils.DatabaseUtils;
 import pages.LeadsPage;
 import com.github.javafaker.Faker;
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 
 import java.net.URI;
@@ -16,9 +13,8 @@ import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.Locale;
 
-public class LeadsTest {
+public class LeadsTest extends BaseTest {
 
-    WebDriver driver;
     Faker faker;
     LeadsPage leadsPage;
 
@@ -28,15 +24,13 @@ public class LeadsTest {
     }
 
     @BeforeMethod
-    public void setup() {
+    public void setupTest() {
+        setupBrowser();
         // Initialize instances
-        WebDriverManager.chromedriver().setup();
         faker = new Faker(new Locale("pt-BR"));
-        driver = new ChromeDriver();
         leadsPage = new LeadsPage(driver);
         // Access landing page
         driver.get("http://localhost:3000/");
-        driver.manage().window().maximize();
     }
 
     @AfterMethod

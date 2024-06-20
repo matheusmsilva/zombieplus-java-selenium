@@ -1,8 +1,5 @@
 package e2e;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -11,23 +8,20 @@ import pages.MoviesPage;
 
 import java.util.Arrays;
 
-public class LoginTest {
+public class LoginTest extends BaseTest {
 
-    WebDriver driver;
     LoginPage loginPage;
     MoviesPage moviesPage;
 
     @BeforeMethod
-    public void setup() {
+    public void setupTest() {
+        setupBrowser();
         // Initialize instances
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
         loginPage = new LoginPage(driver);
         moviesPage = new MoviesPage(driver);
 
         // Access login page
         loginPage.visit();
-        driver.manage().window().maximize();
     }
 
     @AfterMethod
