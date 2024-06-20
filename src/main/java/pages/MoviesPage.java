@@ -14,6 +14,7 @@ import org.testng.Assert;
 import pages.components.Popup;
 
 import java.time.Duration;
+import java.util.List;
 
 public class MoviesPage {
 
@@ -32,10 +33,10 @@ public class MoviesPage {
 
     // Elements
     @FindBy(css = "a[href$='register']")
-    private WebElement btn_RegisterMovie;
+    private WebElement button_RegisterMovie;
 
     @FindBy(xpath = "//button[@type='button'][text()='Cadastrar']")
-    private WebElement btn_Submit;
+    private WebElement button_Submit;
 
     @FindBy(name = "title")
     private WebElement input_MovieTitle;
@@ -55,10 +56,25 @@ public class MoviesPage {
     @FindBy(css = ".featured .react-switch")
     private WebElement switch_Featured;
 
+    @FindBy(css = ".confirm-removal")
+    private WebElement button_ConfirmRemove;
+
+    @FindBy(className = "alert")
+    private List<WebElement> text_AlertFields;
+
+    @FindBy(xpath = "//input[@placeholder='Busque pelo nome']")
+    private WebElement input_Search;
+
+    @FindBy(css = ".actions button")
+    private WebElement button_Search;
+
+    @FindBy(xpath = "//table")
+    private WebElement table_Movies;
+
     // Operations
     public void goToForm() {
-        wait.until(d -> btn_RegisterMovie.isDisplayed());
-        btn_RegisterMovie.click();
+        wait.until(d -> button_RegisterMovie.isDisplayed());
+        button_RegisterMovie.click();
     }
 
     public void create(Movie movie) {
@@ -85,9 +101,17 @@ public class MoviesPage {
             switch_Featured.click();
         }
 
-        wait.until(ExpectedConditions.elementToBeClickable(btn_Submit));
-        actions.moveToElement(btn_Submit).perform();
-        btn_Submit.click();
+        this.submit();
+    }
+
+    public MoviesPage remove(String movieTitle) {
+        WebElement button_RemoveMovie = driver.findElement(By.xpath("//td[text()='" + movieTitle + "']/..//td[@class='remove-item']//button"));
+        wait.until(ExpectedConditions.elementToBeClickable(button_RemoveMovie));
+
+        button_RemoveMovie.click();
+        wait.until(ExpectedConditions.elementToBeClickable(button_ConfirmRemove));
+        button_ConfirmRemove.click();
+        return this;
     }
 
     public Popup getPopup() {
@@ -98,5 +122,46 @@ public class MoviesPage {
         WebElement usernameElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='logged-user']//small")));
         String actualUser = usernameElement.getText();
         Assert.assertEquals(actualUser, "Olá, " + username);
+    }
+
+    public void submit() {
+        wait.until(ExpectedConditions.elementToBeClickable(button_Submit));
+        actions.moveToElement(button_Submit).perform();
+        button_Submit.click();
+    }
+
+    public MoviesPage search (String text) {
+        wait.until(ExpectedConditions.visibilityOfAllElements(input_Search));
+        input_Search.sendKeys(text);
+        button_Search.click();
+        return this;
+    }
+
+    public void alertHaveText(Object target) {
+        wait.until(ExpectedConditions.visibilityOfAllElements(text_AlertFields));
+
+        if (target instanceof String) {
+            Assert.assertEquals(text_AlertFields.size(), 1);
+            String actualMessage = text_AlertFields.getFirst().getText();
+            Assert.assertEquals(actualMessage, target);
+        } else if (target instanceof List) {
+            List<String> expectedMessages = (List<String>) target;
+            Assert.assertEquals(text_AlertFields.size(), expectedMessages.size());
+
+            for (int i = 0; i < expectedMessages.size(); i++) {
+                String actualMessage = text_AlertFields.get(i).getText();
+                Assert.assertEquals(actualMessage, expectedMessages.get(i));
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported type for alert text: " + target.getClass().getName());
+        }
+    }
+
+    public void tableHaveContent(List<String> outputs) {
+        for (String output : outputs) {
+            wait.until(ExpectedConditions.visibilityOfAllElements(table_Movies));
+            WebElement rowTitle = driver.findElement(By.xpath("//td[text()='" + output + "']"));
+            wait.until(ExpectedConditions.visibilityOfAllElements(rowTitle));
+        }
     }
 }

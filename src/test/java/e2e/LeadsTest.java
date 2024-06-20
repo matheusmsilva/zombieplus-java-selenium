@@ -67,7 +67,6 @@ public class LeadsTest extends BaseTest {
 
         // Assert Lead created successfully
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
         Assert.assertEquals(response.statusCode(), 201);
 
         // Steps

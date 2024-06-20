@@ -1,12 +1,17 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Movie {
     private String title;
     private String overview;
     private String company;
+    @JsonProperty("release_year")
     private int releaseYear;
     private boolean featured;
     private String cover;
+    @JsonProperty("company_id")
+    private String companyId;
 
     // Getters
     public String getTitle() {
@@ -31,5 +36,13 @@ public class Movie {
 
     public String getCover() {
         return cover;
+    }
+
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyId() {
+        return companyId;
     }
 }

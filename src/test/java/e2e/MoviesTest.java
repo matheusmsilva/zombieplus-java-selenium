@@ -1,7 +1,9 @@
 package e2e;
 
+import api.ApiZombieplus;
 import models.Movie;
 import models.MovieData;
+import models.SearchData;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -11,10 +13,14 @@ import pages.MoviesPage;
 import utils.DatabaseUtils;
 import utils.JsonUtils;
 
+import java.util.Arrays;
+
 public class MoviesTest extends BaseTest {
 
     MoviesPage moviesPage;
     MovieData movieData;
+    LoginPage loginPage;
+    ApiZombieplus api;
 
     @BeforeClass
     public void setupEnvironment() {
@@ -22,21 +28,17 @@ public class MoviesTest extends BaseTest {
     }
 
     @BeforeMethod
-    public void setupTest() {
+    public void setupTest() throws Exception {
         setupBrowser();
         // Initialize movieData
         movieData = JsonUtils.readMovieData();
         if (movieData == null) {
             throw new RuntimeException("Failed to read movie data from JSON.");
         }
-
-        // Login
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.doLogin();
-
-        // Ensure login was successful
         moviesPage = new MoviesPage(driver);
-        moviesPage.isLoggedIn("Admin");
+        loginPage = new LoginPage(driver);
+        api = new ApiZombieplus();
+        api.setToken();
     }
 
     @AfterMethod
@@ -47,10 +49,85 @@ public class MoviesTest extends BaseTest {
     @Test
     public void shouldCreateMovie() throws Exception {
         Movie movie = movieData.getCreate();
+        // Login
+        loginPage.doLogin();
+        moviesPage.isLoggedIn("Admin");
+        // Steps
         moviesPage.create(movie);
         moviesPage
                 .getPopup()
                 .haveText("O filme '" + movie.getTitle() + "' foi adicionado ao catálogo.");
+    }
+
+    @Test
+    public void shouldRemoveOneMovie() throws Exception {
+        // Setup data
+        Movie movie = movieData.getToRemove();
+        api.postMovie(movie);
+
+        // Login
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.doLogin();
+        moviesPage.isLoggedIn("Admin");
+
+        // Steps
+        moviesPage
+                .remove(movie.getTitle())
+                .getPopup()
+                .haveText("Filme removido com sucesso.");
+    }
+
+    @Test
+    public void shouldNotCreateNewMovieWhenTitleAlreadyExists() throws Exception {
+        // Set data
+        Movie movie = movieData.getDuplicate();
+        api.postMovie(movie);
+
+        // Login
+        loginPage.doLogin();
+        moviesPage.isLoggedIn("Admin");
+
+        // Steps
+        moviesPage.create(movie);
+        moviesPage
+                .getPopup()
+                .haveText("O título '" + movie.getTitle() + "' já consta em nosso catálogo. Por favor, verifique se há necessidade de atualizações ou correções para este item.");
+    }
+
+    @Test
+    public void shouldNotCreateNewMovieWhenMandatoryFieldsAreNotFilled() {
+        // Login
+        loginPage.doLogin();
+        moviesPage.isLoggedIn("Admin");
+
+        // Steps
+        moviesPage.goToForm();
+        moviesPage.submit();
+        moviesPage.alertHaveText(Arrays.asList(
+                "Campo obrigatório",
+                "Campo obrigatório",
+                "Campo obrigatório",
+                "Campo obrigatório"
+        ));
+    }
+
+    @Test
+    public void shouldFilterBySearchingZumbiWord() throws Exception {
+        // Set data
+        SearchData movies = movieData.getSearch();
+
+        for(Movie m : movies.getData()) {
+            api.postMovie(m);
+        }
+
+        // Login
+        loginPage.doLogin();
+        moviesPage.isLoggedIn("Admin");
+
+        // Steps
+        moviesPage
+                .search(movies.getInput())
+                .tableHaveContent(movies.getOutputs());
     }
 
 
