@@ -78,17 +78,17 @@ public class MoviesPage {
         button_RegisterMovie.click();
     }
 
-    public void create(Movie movie) {
+    public MoviesPage create(Movie movie) {
         this.goToForm();
         wait.until(d -> input_MovieTitle.isDisplayed());
         input_MovieTitle.sendKeys(movie.getTitle());
         input_MovieOverview.sendKeys(movie.getOverview());
 
-        wait.until(ExpectedConditions.elementToBeClickable(select_MovieProvider));
+        waitUntilElementClickable(select_MovieProvider);
         select_MovieProvider.click();
         selectOptionByText(movie.getCompany());
 
-        wait.until(ExpectedConditions.elementToBeClickable(select_MovieYear));
+        waitUntilElementClickable(select_MovieYear);
         select_MovieYear.click();
         selectOptionByText(String.valueOf(movie.getReleaseYear()));
 
@@ -101,6 +101,7 @@ public class MoviesPage {
         }
 
         this.submit();
+        return this;
     }
 
     public MoviesPage remove(String movieTitle) {
@@ -165,6 +166,10 @@ public class MoviesPage {
             WebElement option = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'react-select__option') and text()='" + text + "']")));
             option.click();
         }
+    }
+
+    private void waitUntilElementClickable(WebElement element) {
+        wait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
     public void tableHaveContent(List<String> outputs) {

@@ -53,8 +53,8 @@ public class MoviesTest extends BaseTest {
         loginPage.doLogin();
         moviesPage.isLoggedIn("Admin");
         // Steps
-        moviesPage.create(movie);
         moviesPage
+                .create(movie)
                 .getPopup()
                 .haveText("O filme '" + movie.getTitle() + "' foi adicionado ao catálogo.");
     }
@@ -88,8 +88,7 @@ public class MoviesTest extends BaseTest {
         moviesPage.isLoggedIn("Admin");
 
         // Steps
-        moviesPage.create(movie);
-        moviesPage
+        moviesPage.create(movie)
                 .getPopup()
                 .haveText("O título '" + movie.getTitle() + "' já consta em nosso catálogo. Por favor, verifique se há necessidade de atualizações ou correções para este item.");
     }
