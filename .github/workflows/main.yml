@@ -7,27 +7,12 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    services:
-      frontend:
-        image: node:20
-        ports:
-          - 3000:3000
-        volumes:
-          - ./application/web:/home/frontend
-          
-      backend:
-        image: node:20
-        ports:
-          - 3333:3333
-        volumes:
-          - ./application/api:/home/backend
-
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4.1.7
 
     - name: Setup Java
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4.2.1
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -37,23 +22,15 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install frontend dependencies
-      working-directory: ./application/web
-      run: npm install
-
-    - name: Start frontend server
-      working-directory: ./application/web
-      run: npm run dev &
+    - name: Start frontend service
+      run: |
+        docker run -d --name frontend --network host -p 3000:3000 -v $PWD/application/web:/home/frontend node:20 bash -c "cd /home/frontend && npm install && npm run dev"
       env:
         API_URL: ${{ secrets.FRONTEND_API_URL }}
 
-    - name: Install backend dependencies
-      working-directory: ./application/api
-      run: npm install
-
-    - name: Start backend server
-      working-directory: ./application/api
-      run: npm run dev &
+    - name: Start backend service
+      run: |
+        docker run -d --name backend --network host -p 3333:3333 -v $PWD/application/api:/home/backend node:20 bash -c "cd /home/backend && npm install && npm run dev"
       env:
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_USER: ${{ secrets.DB_USER }}
