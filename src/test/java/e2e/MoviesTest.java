@@ -66,7 +66,6 @@ public class MoviesTest extends BaseTest {
         api.postMovie(movie);
 
         // Login
-        LoginPage loginPage = new LoginPage(driver);
         loginPage.doLogin();
         moviesPage.isLoggedIn("Admin");
 

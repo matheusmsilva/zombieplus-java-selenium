@@ -8,6 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+import pages.components.Popup;
 
 import java.time.Duration;
 import java.util.List;
@@ -16,9 +17,11 @@ public class LoginPage {
 
     WebDriver driver;
     Wait<WebDriver> wait;
+    Popup popup;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
+        popup = new Popup(driver);
         wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         PageFactory.initElements(driver, this);
     }
@@ -44,6 +47,10 @@ public class LoginPage {
         driver.get("http://localhost:3000/admin/login");
         wait.until(d -> modal_Login.isDisplayed());
         return this;
+    }
+
+    public Popup getPopup() {
+        return popup;
     }
 
     public void doLogin() {

@@ -42,6 +42,14 @@ public class LoginTest extends BaseTest {
     }
 
     @Test
+    public void shouldNotLogInWhenPasswordIsIncorrect() {
+        loginPage.submit("admin@zombieplus.com", "abc123");
+        loginPage
+                .getPopup()
+                .haveText("Ocorreu um erro ao tentar efetuar o login. Por favor, verifique suas credenciais e tente novamente.");
+    }
+
+    @Test
     public void shouldNotLogInWhenEmailIsNotInformed() {
         loginPage.submit("", "pwd123");
         loginPage.alertHaveText("Campo obrigatório");
