@@ -92,14 +92,10 @@ public class SeriesPage {
         input_SerieTitle.sendKeys(serie.getTitle());
         input_SerieOverview.sendKeys(serie.getOverview());
 
-        WebElement select_SerieProvider = driver.findElement(By.cssSelector("#select_company_id .react-select__indicator"));
-        waitUntilElementClickable(select_SerieProvider);
-        select_SerieProvider.click();
+        this.clickElementWithRetry(By.cssSelector("#select_company_id .react-select__indicator"));
         selectOptionByText(serie.getCompany());
 
-        WebElement select_SerieYear = driver.findElement(By.cssSelector("#select_year .react-select__indicator"));
-        waitUntilElementClickable(select_SerieYear);
-        select_SerieYear.click();
+        this.clickElementWithRetry(By.cssSelector("#select_year .react-select__indicator"));
         selectOptionByText(String.valueOf(serie.getReleaseYear()));
 
         input_Seasons.sendKeys(String.valueOf(serie.getSeasons()));
@@ -186,6 +182,22 @@ public class SeriesPage {
             wait.until(ExpectedConditions.visibilityOfAllElements(table_Series));
             WebElement rowTitle = driver.findElement(By.xpath("//td[text()='" + output + "']"));
             wait.until(ExpectedConditions.visibilityOfAllElements(rowTitle));
+        }
+    }
+
+    private void clickElementWithRetry(By locator) {
+        int attempts = 0;
+        while (attempts < 3) {
+            try {
+                WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+                element.click();
+                return;
+            } catch (StaleElementReferenceException e) {
+                attempts++;
+                if (attempts == 3) {
+                    throw e;
+                }
+            }
         }
     }
 }

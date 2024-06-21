@@ -79,15 +79,10 @@ public class MoviesPage {
         input_MovieTitle.sendKeys(movie.getTitle());
         input_MovieOverview.sendKeys(movie.getOverview());
 
-        WebElement select_MovieProvider = driver.findElement(By.cssSelector("#select_company_id .react-select__indicator"));
-        WebElement select_MovieYear = driver.findElement(By.cssSelector("#select_year .react-select__indicator"));
-
-        waitUntilElementClickable(select_MovieProvider);
-        select_MovieProvider.click();
+        this.clickElementWithRetry(By.cssSelector("#select_company_id .react-select__indicator"));
         selectOptionByText(movie.getCompany());
 
-        waitUntilElementClickable(select_MovieYear);
-        select_MovieYear.click();
+        this.clickElementWithRetry(By.cssSelector("#select_year .react-select__indicator"));
         selectOptionByText(String.valueOf(movie.getReleaseYear()));
 
         String currentDir = System.getProperty("user.dir");
@@ -176,6 +171,22 @@ public class MoviesPage {
             wait.until(ExpectedConditions.visibilityOfAllElements(table_Movies));
             WebElement rowTitle = driver.findElement(By.xpath("//td[text()='" + output + "']"));
             wait.until(ExpectedConditions.visibilityOfAllElements(rowTitle));
+        }
+    }
+
+    private void clickElementWithRetry(By locator) {
+        int attempts = 0;
+        while (attempts < 3) {
+            try {
+                WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+                element.click();
+                return;
+            } catch (StaleElementReferenceException e) {
+                attempts++;
+                if (attempts == 3) {
+                    throw e;
+                }
+            }
         }
     }
 }
