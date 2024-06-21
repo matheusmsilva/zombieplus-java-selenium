@@ -49,12 +49,6 @@ public class SeriesPage {
     @FindBy(name = "overview")
     private WebElement input_SerieOverview;
 
-    @FindBy(css = "#select_company_id .react-select__indicator")
-    private WebElement select_SerieProvider;
-
-    @FindBy(css = "#select_year .react-select__indicator")
-    private WebElement select_SerieYear;
-
     @FindBy(name = "cover")
     private WebElement input_Cover;
 
@@ -98,10 +92,12 @@ public class SeriesPage {
         input_SerieTitle.sendKeys(serie.getTitle());
         input_SerieOverview.sendKeys(serie.getOverview());
 
+        WebElement select_SerieProvider = driver.findElement(By.cssSelector("#select_company_id .react-select__indicator"));
         waitUntilElementClickable(select_SerieProvider);
         select_SerieProvider.click();
         selectOptionByText(serie.getCompany());
 
+        WebElement select_SerieYear = driver.findElement(By.cssSelector("#select_year .react-select__indicator"));
         waitUntilElementClickable(select_SerieYear);
         select_SerieYear.click();
         selectOptionByText(String.valueOf(serie.getReleaseYear()));

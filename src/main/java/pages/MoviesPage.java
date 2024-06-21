@@ -45,12 +45,6 @@ public class MoviesPage {
     @FindBy(name = "overview")
     private WebElement input_MovieOverview;
 
-    @FindBy(css = "#select_company_id .react-select__indicator")
-    private WebElement select_MovieProvider;
-
-    @FindBy(css = "#select_year .react-select__indicator")
-    private WebElement select_MovieYear;
-
     @FindBy(name = "cover")
     private WebElement input_Cover;
 
@@ -84,6 +78,9 @@ public class MoviesPage {
         wait.until(d -> input_MovieTitle.isDisplayed());
         input_MovieTitle.sendKeys(movie.getTitle());
         input_MovieOverview.sendKeys(movie.getOverview());
+
+        WebElement select_MovieProvider = driver.findElement(By.cssSelector("#select_company_id .react-select__indicator"));
+        WebElement select_MovieYear = driver.findElement(By.cssSelector("#select_year .react-select__indicator"));
 
         waitUntilElementClickable(select_MovieProvider);
         select_MovieProvider.click();
