@@ -3,7 +3,7 @@ package e2e;
 import api.ApiZombieplus;
 import models.Movie;
 import models.MovieData;
-import models.SearchData;
+import models.SearchDataMovies;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -88,7 +88,8 @@ public class MoviesTest extends BaseTest {
         moviesPage.isLoggedIn("Admin");
 
         // Steps
-        moviesPage.create(movie)
+        moviesPage
+                .create(movie)
                 .getPopup()
                 .haveText("O título '" + movie.getTitle() + "' já consta em nosso catálogo. Por favor, verifique se há necessidade de atualizações ou correções para este item.");
     }
@@ -100,20 +101,21 @@ public class MoviesTest extends BaseTest {
         moviesPage.isLoggedIn("Admin");
 
         // Steps
-        moviesPage.goToForm();
-        moviesPage.submit();
-        moviesPage.alertHaveText(Arrays.asList(
-                "Campo obrigatório",
-                "Campo obrigatório",
-                "Campo obrigatório",
-                "Campo obrigatório"
-        ));
+        moviesPage
+                .goToForm()
+                .submit()
+                .alertHaveText(Arrays.asList(
+                    "Campo obrigatório",
+                    "Campo obrigatório",
+                    "Campo obrigatório",
+                    "Campo obrigatório"
+               ));
     }
 
     @Test
     public void shouldFilterBySearchingZumbiWord() throws Exception {
         // Set data
-        SearchData movies = movieData.getSearch();
+        SearchDataMovies movies = movieData.getSearch();
 
         for(Movie m : movies.getData()) {
             api.postMovie(m);

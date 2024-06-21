@@ -1,6 +1,7 @@
 package pages;
 
 import models.Movie;
+import models.Serie;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -17,14 +18,14 @@ import pages.components.Popup;
 import java.time.Duration;
 import java.util.List;
 
-public class MoviesPage {
+public class SeriesPage {
 
     WebDriver driver;
     Actions actions;
     Popup popup;
     Wait<WebDriver> wait;
 
-    public MoviesPage(WebDriver driver) {
+    public SeriesPage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(7));
         actions = new Actions(driver);
@@ -34,22 +35,25 @@ public class MoviesPage {
 
     // Elements
     @FindBy(css = "a[href$='register']")
-    private WebElement button_RegisterMovie;
+    private WebElement button_RegisterSerie;
+
+    @FindBy(css = "a[href$='tvshows']")
+    private WebElement button_Series;
 
     @FindBy(xpath = "//button[@type='button'][text()='Cadastrar']")
     private WebElement button_Submit;
 
     @FindBy(name = "title")
-    private WebElement input_MovieTitle;
+    private WebElement input_SerieTitle;
 
     @FindBy(name = "overview")
-    private WebElement input_MovieOverview;
+    private WebElement input_SerieOverview;
 
     @FindBy(css = "#select_company_id .react-select__indicator")
-    private WebElement select_MovieProvider;
+    private WebElement select_SerieProvider;
 
     @FindBy(css = "#select_year .react-select__indicator")
-    private WebElement select_MovieYear;
+    private WebElement select_SerieYear;
 
     @FindBy(name = "cover")
     private WebElement input_Cover;
@@ -70,34 +74,45 @@ public class MoviesPage {
     private WebElement button_Search;
 
     @FindBy(xpath = "//table")
-    private WebElement table_Movies;
+    private WebElement table_Series;
+
+    @FindBy(name = "seasons")
+    private WebElement input_Seasons;
 
     // Operations
-    public MoviesPage goToForm() {
-        wait.until(d -> button_RegisterMovie.isDisplayed());
-        button_RegisterMovie.click();
+    public SeriesPage go() {
+        waitUntilElementClickable(button_Series);
+        button_Series.click();
         return this;
     }
 
-    public MoviesPage create(Movie movie) {
+    public SeriesPage goToForm() {
+        wait.until(d -> button_RegisterSerie.isDisplayed());
+        button_RegisterSerie.click();
+        return this;
+    }
+
+    public SeriesPage create(Serie serie) {
         this.goToForm();
-        wait.until(d -> input_MovieTitle.isDisplayed());
-        input_MovieTitle.sendKeys(movie.getTitle());
-        input_MovieOverview.sendKeys(movie.getOverview());
+        wait.until(d -> input_SerieTitle.isDisplayed());
+        input_SerieTitle.sendKeys(serie.getTitle());
+        input_SerieOverview.sendKeys(serie.getOverview());
 
-        waitUntilElementClickable(select_MovieProvider);
-        select_MovieProvider.click();
-        selectOptionByText(movie.getCompany());
+        waitUntilElementClickable(select_SerieProvider);
+        select_SerieProvider.click();
+        selectOptionByText(serie.getCompany());
 
-        waitUntilElementClickable(select_MovieYear);
-        select_MovieYear.click();
-        selectOptionByText(String.valueOf(movie.getReleaseYear()));
+        waitUntilElementClickable(select_SerieYear);
+        select_SerieYear.click();
+        selectOptionByText(String.valueOf(serie.getReleaseYear()));
+
+        input_Seasons.sendKeys(String.valueOf(serie.getSeasons()));
 
         String currentDir = System.getProperty("user.dir");
-        String imagePath = currentDir + "/src/test/resources/fixtures" + movie.getCover();
+        String imagePath = currentDir + "/src/test/resources/fixtures" + serie.getCover();
         input_Cover.sendKeys(imagePath);
 
-        if (movie.isFeatured()) {
+        if (serie.isFeatured()) {
             switch_Featured.click();
         }
 
@@ -105,12 +120,14 @@ public class MoviesPage {
         return this;
     }
 
-    public MoviesPage remove(String movieTitle) {
-        WebElement button_RemoveMovie = driver.findElement(By.xpath("//td[text()='" + movieTitle + "']/..//td[@class='remove-item']//button"));
-        wait.until(ExpectedConditions.elementToBeClickable(button_RemoveMovie));
+    public SeriesPage remove(String serieTitle) {
+        wait.until(ExpectedConditions.visibilityOfAllElements(table_Series));
+        WebElement button_RemoveMovie = driver.findElement(By.xpath("//td[text()='" + serieTitle + "']/..//td[@class='remove-item']//button"));
 
+        waitUntilElementClickable(button_RemoveMovie);
         button_RemoveMovie.click();
-        wait.until(ExpectedConditions.elementToBeClickable(button_ConfirmRemove));
+
+        waitUntilElementClickable(button_ConfirmRemove);
         button_ConfirmRemove.click();
         return this;
     }
@@ -119,20 +136,14 @@ public class MoviesPage {
         return popup;
     }
 
-    public void isLoggedIn(String username) {
-        WebElement usernameElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='logged-user']//small")));
-        String actualUser = usernameElement.getText();
-        Assert.assertEquals(actualUser, "Olá, " + username);
-    }
-
-    public MoviesPage submit() {
-        wait.until(ExpectedConditions.elementToBeClickable(button_Submit));
+    public SeriesPage submit() {
+        waitUntilElementClickable(button_Submit);
         actions.moveToElement(button_Submit).perform();
         button_Submit.click();
         return this;
     }
 
-    public MoviesPage search (String text) {
+    public SeriesPage search (String text) {
         wait.until(ExpectedConditions.visibilityOfAllElements(input_Search));
         input_Search.sendKeys(text);
         button_Search.click();
@@ -176,7 +187,7 @@ public class MoviesPage {
 
     public void tableHaveContent(List<String> outputs) {
         for (String output : outputs) {
-            wait.until(ExpectedConditions.visibilityOfAllElements(table_Movies));
+            wait.until(ExpectedConditions.visibilityOfAllElements(table_Series));
             WebElement rowTitle = driver.findElement(By.xpath("//td[text()='" + output + "']"));
             wait.until(ExpectedConditions.visibilityOfAllElements(rowTitle));
         }

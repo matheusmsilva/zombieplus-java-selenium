@@ -3,6 +3,7 @@ package api;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Movie;
+import models.Serie;
 import org.testng.Assert;
 
 import java.net.URI;
@@ -104,6 +105,42 @@ public class ApiZombieplus {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         Assert.assertEquals(response.statusCode(), 201);
     }
+
+    public void postSerie(Serie serie) throws Exception {
+        String companyId = getCompanyIdByName(serie.getCompany());
+        serie.setCompanyId(companyId);
+
+        // Create multipart form data
+        String boundary = "Boundary-" + System.currentTimeMillis();
+        StringBuilder sb = new StringBuilder();
+        sb.append("--").append(boundary).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"title\"\r\n\r\n").append(serie.getTitle()).append("\r\n");
+        sb.append("--").append(boundary).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"overview\"\r\n\r\n").append(serie.getOverview()).append("\r\n");
+        sb.append("--").append(boundary).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"company_id\"\r\n\r\n").append(serie.getCompanyId()).append("\r\n");
+        sb.append("--").append(boundary).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"seasons\"\r\n\r\n").append(serie.getSeasons()).append("\r\n");
+        sb.append("--").append(boundary).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"release_year\"\r\n\r\n").append(serie.getReleaseYear()).append("\r\n");
+        sb.append("--").append(boundary).append("\r\n");
+        sb.append("Content-Disposition: form-data; name=\"featured\"\r\n\r\n").append(serie.isFeatured()).append("\r\n");
+        sb.append("--").append(boundary).append("--");
+
+        // Create client and request
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(baseUrl + "/tvshows"))
+                .header("Authorization", token)
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofString(sb.toString()))
+                .build();
+
+        // Send request and assert it works
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Assert.assertEquals(response.statusCode(), 201);
+    }
+
 
 
 

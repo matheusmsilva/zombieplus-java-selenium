@@ -2,10 +2,10 @@ package models;
 
 import java.util.List;
 
-public class SearchData {
+public class SearchDataSeries {
     private String input;
     private List<String> outputs;
-    private List<Movie> data;
+    private List<Serie> data;
 
     public String getInput() {
         return input;
@@ -15,7 +15,7 @@ public class SearchData {
         return outputs;
     }
 
-    public List<Movie> getData() {
+    public List<Serie> getData() {
         return data;
     }
 

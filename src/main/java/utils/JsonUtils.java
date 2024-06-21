@@ -2,6 +2,7 @@ package utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.MovieData;
+import models.SerieData;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +14,16 @@ public class JsonUtils {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(new File(JSON_FILE_PATH + "/movies.json"), MovieData.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static SerieData readSerieData() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(new File(JSON_FILE_PATH + "/series.json"), SerieData.class);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

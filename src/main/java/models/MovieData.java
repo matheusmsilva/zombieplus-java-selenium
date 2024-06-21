@@ -4,7 +4,7 @@ public class MovieData {
     private Movie create;
     private Movie duplicate;
     private Movie toRemove;
-    private SearchData search;
+    private SearchDataMovies search;
 
     public Movie getCreate() {
         return create;
@@ -18,7 +18,7 @@ public class MovieData {
         return toRemove;
     }
 
-    public SearchData getSearch() {
+    public SearchDataMovies getSearch() {
         return search;
     }
 }
