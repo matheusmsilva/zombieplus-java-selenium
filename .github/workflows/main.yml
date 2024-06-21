@@ -41,6 +41,7 @@ jobs:
       run: mvn clean install
 
     - name: Slack Notification
+      if: always()
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_CHANNEL: zombieplus
