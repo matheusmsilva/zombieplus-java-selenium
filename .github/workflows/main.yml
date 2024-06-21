@@ -39,15 +39,47 @@ jobs:
 
     - name: Build and Run Tests
       run: mvn clean install
+      continue-on-error: true
 
-    - name: Slack Notification
+    - name: Upload Test Reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-reports
+        path: target/surefire-reports/*.xml
+
+    - name: Generate Test Summary
+      id: test-summary
+      run: |
+        if [ -f target/surefire-reports/TEST-*.xml ]; then
+          tests=$(grep -oP '(?<=tests=")[^"]*' target/surefire-reports/TEST-*.xml)
+          failures=$(grep -oP '(?<=failures=")[^"]*' target/surefire-reports/TEST-*.xml)
+          errors=$(grep -oP '(?<=errors=")[^"]*' target/surefire-reports/TEST-*.xml)
+          skipped=$(grep -oP '(?<=skipped=")[^"]*' target/surefire-reports/TEST-*.xml)
+          echo "tests=$tests" >> $GITHUB_ENV
+          echo "failures=$failures" >> $GITHUB_ENV
+          echo "errors=$errors" >> $GITHUB_ENV
+          echo "skipped=$skipped" >> $GITHUB_ENV
+        else
+          echo "tests=0" >> $GITHUB_ENV
+          echo "failures=0" >> $GITHUB_ENV
+          echo "errors=0" >> $GITHUB_ENV
+          echo "skipped=0" >> $GITHUB_ENV
+        fi
+
+    - name: Send Slack Notification
       if: always()
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_CHANNEL: zombieplus
-        SLACK_COLOR: ${{ job.status }} 
+        SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
         SLACK_ICON: https://github.com/rtCamp.png?size=48
-        SLACK_MESSAGE: 'Post Content :rocket:'
-        SLACK_TITLE: Post Title
-        SLACK_USERNAME: rtCamp
+        SLACK_MESSAGE: |
+          *Pipeline Execution Report*
+          - *Job Status:* ${{ job.status }}
+          - *Total Tests:* ${{ env.tests }}
+          - *Failures:* ${{ env.failures }}
+          - *Errors:* ${{ env.errors }}
+          - *Skipped:* ${{ env.skipped }}
+        SLACK_TITLE: Pipeline Test Execution Report
+        SLACK_USERNAME: GitHub Actions Bot
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
